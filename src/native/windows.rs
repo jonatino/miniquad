@@ -352,36 +352,42 @@ unsafe extern "system" fn win32_wndproc(
             let mouse_x = payload.mouse_x;
             let mouse_y = payload.mouse_y;
             event_handler.mouse_button_down_event(MouseButton::Left, mouse_x, mouse_y);
+            SetCapture(hwnd);
         }
         WM_RBUTTONDOWN => {
             let mouse_x = payload.mouse_x;
             let mouse_y = payload.mouse_y;
 
             event_handler.mouse_button_down_event(MouseButton::Right, mouse_x, mouse_y);
+            SetCapture(hwnd);
         }
         WM_MBUTTONDOWN => {
             let mouse_x = payload.mouse_x;
             let mouse_y = payload.mouse_y;
 
             event_handler.mouse_button_down_event(MouseButton::Middle, mouse_x, mouse_y);
+            SetCapture(hwnd);
         }
         WM_LBUTTONUP => {
             let mouse_x = payload.mouse_x;
             let mouse_y = payload.mouse_y;
 
             event_handler.mouse_button_up_event(MouseButton::Left, mouse_x, mouse_y);
+            ReleaseCapture();
         }
         WM_RBUTTONUP => {
             let mouse_x = payload.mouse_x;
             let mouse_y = payload.mouse_y;
 
             event_handler.mouse_button_up_event(MouseButton::Right, mouse_x, mouse_y);
+            ReleaseCapture();
         }
         WM_MBUTTONUP => {
             let mouse_x = payload.mouse_x;
             let mouse_y = payload.mouse_y;
 
             event_handler.mouse_button_up_event(MouseButton::Middle, mouse_x, mouse_y);
+            ReleaseCapture();
         }
 
         WM_MOUSEMOVE => {
@@ -520,7 +526,6 @@ unsafe extern "system" fn win32_wndproc(
             let num_drops = DragQueryFileW(hdrop, u32::MAX, std::ptr::null_mut(), 0);
 
             let mut d = crate::native_display().lock().unwrap();
-            d.dropped_files = Default::default();
             for i in 0..num_drops {
                 let path_ptr = path.as_mut_ptr() as *mut u16;
                 let path_len = DragQueryFileW(hdrop, i, path_ptr, MAX_PATH as u32) as usize;
@@ -875,7 +880,7 @@ impl WindowsDisplay {
             SetWindowPosition { new_x, new_y } => self.set_window_position(new_x, new_y),
             SetFullscreen(fullscreen) => self.set_fullscreen(fullscreen),
             ShowKeyboard(_show) => {
-                eprintln!("Not implemented for windows")
+                //eprintln!("Not implemented for windows")
             }
         }
     }
